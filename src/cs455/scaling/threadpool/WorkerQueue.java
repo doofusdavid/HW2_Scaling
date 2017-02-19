@@ -2,25 +2,28 @@ package cs455.scaling.threadpool;
 
 import cs455.scaling.messaging.WorkMessage;
 
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.LinkedList;
+
 
 public class WorkerQueue
 {
-    private final ConcurrentLinkedDeque<WorkMessage> queue = new ConcurrentLinkedDeque();
+    private final LinkedList<WorkMessage> queue = new LinkedList<>();
 
     public WorkerQueue()
     {
     }
 
-    public void add(WorkMessage work)
+    public void enqueue(WorkMessage work) throws InterruptedException
     {
-        if (work != null)
-            queue.add(work);
+        this.queue.add(work);
     }
 
-    public WorkMessage remove()
+    public synchronized WorkMessage dequeue() throws InterruptedException
     {
-        return queue.poll();
+        while (this.queue.size() == 0)
+        {
+            wait();
+        }
+        return this.queue.remove(0);
     }
-
 }
