@@ -8,10 +8,10 @@ public class ThreadPool
     private WorkerQueue workQueue;
     private List<WorkerThread> threads;
 
-    public ThreadPool(int threadCount)
+    public ThreadPool(int threadCount, WorkerQueue workQueue)
     {
-        threads = new ArrayList<>(threadCount);
-        workQueue = new WorkerQueue();
+        this.threads = new ArrayList<>(threadCount);
+        this.workQueue = workQueue;
 
         for (int i = 0; i < threadCount; i++)
         {

@@ -2,16 +2,25 @@ package cs455.scaling.server;
 
 
 import cs455.scaling.messaging.Message;
+import cs455.scaling.messaging.WorkMessage;
+import cs455.scaling.node.Node;
+import cs455.scaling.threadpool.ThreadPool;
+import cs455.scaling.threadpool.WorkerQueue;
 
-public class Server
+public class Server implements Node
 {
     private final int port;
     private final int threadPoolSize;
+    private final ThreadPool threadPool;
+    private final WorkerQueue workQueue;
 
     public Server(int port, int threadPoolSize)
     {
         this.port = port;
         this.threadPoolSize = threadPoolSize;
+        workQueue = new WorkerQueue();
+        this.threadPool = new ThreadPool(threadPoolSize, workQueue);
+
     }
 
     public static void main(String[] args)
@@ -36,6 +45,14 @@ public class Server
 
     public void onEvent(Message message)
     {
-
+        if (message instanceof WorkMessage)
+        {
+            this.ReceiveWorkMessage((WorkMessage) message);
+        }
     }
+
+    private void ReceiveWorkMessage(WorkMessage message)
+    {
+    }
+
 }

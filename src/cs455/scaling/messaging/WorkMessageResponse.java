@@ -5,12 +5,12 @@ import java.io.IOException;
 
 public class WorkMessageResponse extends Message
 {
-    private final String hashCode;
+    private final String hashValue;
 
-    public WorkMessageResponse(MessageType type, String hashCode)
+    public WorkMessageResponse(MessageType type, String hashValue)
     {
         super(MessageType.WorkMessageResponse);
-        this.hashCode = hashCode;
+        this.hashValue = hashValue;
     }
 
     public WorkMessageResponse(byte[] marshalledBytes) throws IOException
@@ -22,9 +22,14 @@ public class WorkMessageResponse extends Message
         byte[] hcBytes = new byte[hcLength];
         din.readFully(hcBytes);
 
-        this.hashCode = new String(hcBytes);
+        this.hashValue = new String(hcBytes);
 
         super.closeInput();
+    }
+
+    public String getHashValue()
+    {
+        return hashValue;
     }
 
     @Override
@@ -33,7 +38,7 @@ public class WorkMessageResponse extends Message
         super.openOutput(getType());
 
         // HashCode
-        byte[] hcBytes = hashCode.getBytes();
+        byte[] hcBytes = hashValue.getBytes();
         int hcLength = hcBytes.length;
         dout.writeInt(hcLength);
         dout.write(hcBytes);

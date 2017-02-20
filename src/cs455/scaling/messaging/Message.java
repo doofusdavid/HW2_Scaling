@@ -6,6 +6,7 @@ import java.io.*;
 public class Message
 {
     private final MessageType type;
+
     byte[] marshalledBytes;
     ByteArrayOutputStream baOutputStream;
     ByteArrayInputStream baInputStream;
@@ -22,7 +23,7 @@ public class Message
         return this.type;
     }
 
-    byte[] getBytes() throws IOException
+    public byte[] getBytes() throws IOException
     {
         return new byte[0];
     }
