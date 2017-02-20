@@ -29,4 +29,9 @@ public class WorkerQueue
         }
         return this.queue.remove(0);
     }
+
+    public synchronized int getSize()
+    {
+        return queue.size();
+    }
 }

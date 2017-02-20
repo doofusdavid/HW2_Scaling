@@ -121,6 +121,11 @@ public class Server implements Node
         this.totalConnections++;
     }
 
+    synchronized public int getWorkQueueSize()
+    {
+        return this.workQueue.getSize();
+    }
+
     synchronized public void incrementTotalConnectedClients()
     {
         this.totalConnectedClients++;
