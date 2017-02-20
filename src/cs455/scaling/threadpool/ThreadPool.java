@@ -1,12 +1,11 @@
 package cs455.scaling.threadpool;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ThreadPool
 {
-    private WorkerQueue workQueue;
-    private List<WorkerThread> threads;
+    private final WorkerQueue workQueue;
+    private final ArrayList<WorkerThread> threads;
 
     public ThreadPool(int threadCount, WorkerQueue workQueue)
     {
@@ -15,7 +14,7 @@ public class ThreadPool
 
         for (int i = 0; i < threadCount; i++)
         {
-            threads.add(new WorkerThread(workQueue));
+            threads.add(new WorkerThread(this.workQueue));
         }
         for (WorkerThread thread : threads)
         {
