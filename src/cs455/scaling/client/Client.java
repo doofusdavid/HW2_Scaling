@@ -54,18 +54,23 @@ public class Client implements Node
             System.out.println("Invalid arguments.\nExpected server-host server-port message-rate");
         }
 
+        String host = "";
+        int port = 0;
+        int rate = 0;
         try
         {
-            String host = InetAddress.getByName(args[0]).getHostName().toString();
-            int port = Integer.parseInt(args[1]);
-            int rate = Integer.parseInt(args[2]);
-            Client client = new Client(host, port, rate);
-        } catch (Exception e)
+            host = InetAddress.getByName(args[0]).getHostName().toString();
+            port = Integer.parseInt(args[1]);
+            rate = Integer.parseInt(args[2]);
+        }
+        catch (Exception e)
         {
             e.printStackTrace();
             System.out.println("Invalid Arguments.");
             System.exit(0);
         }
+
+        Client client = new Client(host, port, rate);
     }
 
     public int getMessageRate()
