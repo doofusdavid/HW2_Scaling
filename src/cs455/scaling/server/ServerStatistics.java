@@ -22,6 +22,6 @@ public class ServerStatistics extends TimerTask
         double connectionsPerSecond = deltaConnections / 5.0;
         System.out.print(System.nanoTime() + " ");
         System.out.print("Current Server Throughput: ");
-        System.out.println(String.format("%.1f messages/s, Active Client Connections: %d", connectionsPerSecond, server.getTotalConnectedClients()));
+        System.out.println(String.format("%.1f messages/s, %d total messages, Active Client Connections: %d", connectionsPerSecond, totalConnections, server.getTotalConnectedClients()));
     }
 }
