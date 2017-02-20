@@ -65,7 +65,7 @@ public class Client implements Node
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            //e.printStackTrace();
             System.out.println("Invalid Arguments.");
             System.exit(0);
         }
