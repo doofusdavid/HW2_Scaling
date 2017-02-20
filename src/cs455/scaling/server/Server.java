@@ -1,11 +1,12 @@
 package cs455.scaling.server;
 
 
-import cs455.scaling.messaging.Message;
-import cs455.scaling.messaging.WorkMessage;
+import cs455.scaling.messaging.*;
 import cs455.scaling.node.Node;
 import cs455.scaling.threadpool.ThreadPool;
 import cs455.scaling.threadpool.WorkerQueue;
+import cs455.scaling.transport.TCPSenderThread;
+import cs455.scaling.util.NotImplementedException;
 
 public class Server implements Node
 {
@@ -49,10 +50,24 @@ public class Server implements Node
         {
             this.ReceiveWorkMessage((WorkMessage) message);
         }
+        if (message instanceof ServerConnectRequest)
+        {
+            this.ReceiveServerConnectRequest((ServerConnectRequest) message);
+        }
+    }
+
+    private void ReceiveServerConnectRequest(ServerConnectRequest message)
+    {
+        ServerConnectResponse response = new ServerConnectResponse(StatusCode.SUCCESS);
+
+        TCPSenderThread thread = new TCPSenderThread(message.getClientIPAddress(), message.getClientPort(), response);
+        thread.run();
+
     }
 
     private void ReceiveWorkMessage(WorkMessage message)
     {
+        throw new NotImplementedException();
     }
 
 }
