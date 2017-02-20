@@ -28,7 +28,7 @@ public class TCPReceiverThread implements Runnable
         try
         {
             // Passing a 0 auto-allocates a port
-            this.serverSocket = new ServerSocket(port, 10000);
+            this.serverSocket = new ServerSocket(port);
             this.port = this.serverSocket.getLocalPort();
             this.node = node;
             System.out.println(String.format("TCPReceiverThread running on %s:%d", InetAddress.getLocalHost().getHostName().toString(), this.port));
@@ -62,7 +62,6 @@ public class TCPReceiverThread implements Runnable
                 socket.close();
                 MessageFactory mf = MessageFactory.getInstance();
                 mf.FireEvent(data, this.node);
-
             } catch (Exception e)
             {
                 System.out.println("TCPReceiverThread: " + e.getMessage());

@@ -10,6 +10,7 @@ import cs455.scaling.transport.TCPSenderThread;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Timer;
 
 public class Server implements Node
 {
@@ -19,6 +20,8 @@ public class Server implements Node
     private final WorkerQueue workQueue;
     private String host;
     private TCPReceiverThread receiverThread;
+    private int totalConnections;
+    private int totalConnectedClients;
 
     public Server(int port, int threadPoolSize)
     {
@@ -38,6 +41,9 @@ public class Server implements Node
 
         Thread t = new Thread(receiverThread);
         t.start();
+        Timer timer = new Timer();
+        ServerStatistics serverStats = new ServerStatistics(this);
+        timer.schedule(serverStats, 0, 5000);
 
     }
 
@@ -79,6 +85,7 @@ public class Server implements Node
 
         TCPSenderThread thread = new TCPSenderThread(message.getClientIPAddress(), message.getClientPort(), response);
         thread.run();
+        this.incrementTotalConnectedClients();
         System.out.println(String.format("Connected to client %s:%d", message.getClientIPAddress(), message.getClientPort()));
     }
 
@@ -87,6 +94,7 @@ public class Server implements Node
         try
         {
             this.workQueue.enqueue(message);
+            this.incrementTotalConnections();
         }
         catch (InterruptedException i)
         {
@@ -94,4 +102,23 @@ public class Server implements Node
         }
     }
 
+    synchronized public int getTotalConnections()
+    {
+        return totalConnections;
+    }
+
+    synchronized public void incrementTotalConnections()
+    {
+        this.totalConnections++;
+    }
+
+    synchronized public void incrementTotalConnectedClients()
+    {
+        this.totalConnectedClients++;
+    }
+
+    synchronized public int getTotalConnectedClients()
+    {
+        return this.totalConnectedClients;
+    }
 }

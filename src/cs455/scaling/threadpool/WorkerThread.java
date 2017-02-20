@@ -33,7 +33,7 @@ public class WorkerThread extends Thread
                 TCPSenderThread senderThread = new TCPSenderThread(work.getClientIPAddress(), work.getClientPort(), response);
                 Thread t = new Thread(senderThread);
                 t.start();
-                System.out.println("WorkerThread Completed Task");
+                //System.out.println("WorkerThread Completed Task");
             } catch (Exception e)
             {
                 e.printStackTrace();

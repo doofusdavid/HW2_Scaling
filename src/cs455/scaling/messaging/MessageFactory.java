@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 
 public class MessageFactory
 {
-    private static MessageFactory ourInstance = new MessageFactory();
+    private static final MessageFactory ourInstance = new MessageFactory();
 
     private MessageFactory()
     {

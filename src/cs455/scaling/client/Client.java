@@ -5,10 +5,10 @@ import cs455.scaling.messaging.*;
 import cs455.scaling.node.Node;
 import cs455.scaling.transport.TCPReceiverThread;
 import cs455.scaling.transport.TCPSenderThread;
-import cs455.scaling.util.ServerHashCode;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Timer;
 
 public class Client implements Node
 {
@@ -21,7 +21,6 @@ public class Client implements Node
     private TCPReceiverThread receiverThread;
     private int totalSentCount;
     private int totalReceivedCount;
-
     public Client(String serverHost, int serverPort, int messageRate)
     {
         this.serverHost = serverHost;
@@ -41,6 +40,11 @@ public class Client implements Node
         }
 
         this.SendConnectionRequestToServer();
+        ClientStatistics clientStats = new ClientStatistics(this);
+        Timer timer = new Timer();
+        timer.schedule(clientStats, 0, 10000);
+
+
     }
 
     public static void main(String[] args)
@@ -64,6 +68,31 @@ public class Client implements Node
         }
     }
 
+    public int getMessageRate()
+    {
+        return messageRate;
+    }
+
+    public String getServerHost()
+    {
+        return serverHost;
+    }
+
+    public int getServerPort()
+    {
+        return serverPort;
+    }
+
+    public String getClientIPAddress()
+    {
+        return clientIPAddress;
+    }
+
+    public int getClientPort()
+    {
+        return clientPort;
+    }
+
     private void SendConnectionRequestToServer()
     {
         ServerConnectRequest request = new ServerConnectRequest(this.clientIPAddress, this.clientPort);
@@ -81,6 +110,21 @@ public class Client implements Node
     synchronized void incrementTotalReceivedCount()
     {
         totalReceivedCount++;
+    }
+
+    synchronized int getTotalSentCount()
+    {
+        return totalSentCount;
+    }
+
+    synchronized int getTotalReceivedCount()
+    {
+        return totalReceivedCount;
+    }
+
+    synchronized void addSentHashCode(String hashValue)
+    {
+        sentHashCodes.add(hashValue);
     }
 
     @Override
@@ -108,24 +152,9 @@ public class Client implements Node
 
     private void SendDataToServer()
     {
-        while (true)
-        {
-            WorkMessage workMessage = new WorkMessage(this.clientIPAddress, this.clientPort);
-
-            // Add the hashcode to the list so we can verify later
-            sentHashCodes.add(ServerHashCode.SHA1FromBytes(workMessage.getPayload()));
-            TCPSenderThread sender = new TCPSenderThread(this.serverHost, this.serverPort, workMessage);
-            Thread t = new Thread(sender);
-            t.start();
-            incrementTotalSentCount();
-            try
-            {
-                Thread.sleep(1000 / this.messageRate);
-            } catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-        }
+        ClientDataSenderThread senderThread = new ClientDataSenderThread(this);
+        Thread t = new Thread(senderThread);
+        t.start();
     }
 
     private void ReceiveWorkMessageResponse(WorkMessageResponse message)
@@ -135,7 +164,7 @@ public class Client implements Node
         {
             // only increment if we confirm removal
             incrementTotalReceivedCount();
-            System.out.println("Recived work confirmation");
+//            System.out.println("Recived work confirmation");
         }
     }
 }
