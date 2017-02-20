@@ -3,7 +3,7 @@ package cs455.scaling.messaging;
 import java.io.*;
 
 
-public class Message
+public abstract class Message
 {
     private final MessageType type;
 
@@ -23,10 +23,7 @@ public class Message
         return this.type;
     }
 
-    public byte[] getBytes() throws IOException
-    {
-        return new byte[0];
-    }
+    public abstract byte[] getBytes() throws IOException;
 
     void openOutput(MessageType type) throws IOException
     {

@@ -10,13 +10,12 @@ public class ServerConnectRequest extends Message
     private String clientIPAddress;
     private int clientPort;
 
-    public ServerConnectRequest(MessageType type, String clientIPAddress, int clientPort)
+    public ServerConnectRequest(String clientIPAddress, int clientPort)
     {
         super(MessageType.ServerConnectRequest);
         this.clientIPAddress = clientIPAddress;
         this.clientPort = clientPort;
     }
-
     public ServerConnectRequest(byte[] marshalledBytes) throws IOException
     {
         super(MessageType.ServerConnectRequest);
@@ -32,8 +31,18 @@ public class ServerConnectRequest extends Message
         super.closeInput();
     }
 
+    public String getClientIPAddress()
+    {
+        return clientIPAddress;
+    }
+
+    public int getClientPort()
+    {
+        return clientPort;
+    }
+
     @Override
-    byte[] getBytes() throws IOException
+    public byte[] getBytes() throws IOException
     {
         super.openOutput(getType());
 

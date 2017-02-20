@@ -41,8 +41,18 @@ public class MessageFactory
                     message = new WorkMessageResponse(data);
                     break;
                 }
+                case ServerConnectRequest:
+                {
+                    message = new ServerConnectRequest(data);
+                    break;
+                }
+                case ServerConnectResponse:
+                {
+                    message = new ServerConnectResponse(data);
+                    break;
+                }
                 default:
-                    System.out.println("Event Factory: Unknown messageType.  Exiting.");
+                    System.out.println("Message Factory: Unknown messageType.  Exiting.");
                     return;
             }
             node.onEvent(message);

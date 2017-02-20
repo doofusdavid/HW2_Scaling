@@ -33,7 +33,7 @@ public class WorkMessageResponse extends Message
     }
 
     @Override
-    byte[] getBytes() throws IOException
+    public byte[] getBytes() throws IOException
     {
         super.openOutput(getType());
 

@@ -3,7 +3,7 @@ package cs455.scaling.messaging;
 import java.io.IOException;
 
 /**
- * Created by david on 2/19/17.
+ * Response from Server acknowledging connection
  */
 public class ServerConnectResponse extends Message
 {
@@ -25,11 +25,17 @@ public class ServerConnectResponse extends Message
         super.closeInput();
     }
 
+    public byte getStatusCode()
+    {
+        return statusCode;
+    }
+
     @Override
-    byte[] getBytes() throws IOException
+    public byte[] getBytes() throws IOException
     {
         super.openOutput(getType());
 
+        dout.write(statusCode);
 
         return super.closeOutput();
     }

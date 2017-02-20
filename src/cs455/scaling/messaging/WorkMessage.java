@@ -11,7 +11,6 @@ public class WorkMessage extends Message
     private final int clientPort;
     byte[] payload;
 
-
     /**
      * WorkMessage  creates a random 8k byte array
      */
@@ -26,6 +25,7 @@ public class WorkMessage extends Message
         this.clientIPAddress = clientIPAddress;
         this.clientPort = clientPort;
     }
+
 
     public WorkMessage(byte[] marshalledBytes) throws IOException
     {
@@ -45,6 +45,11 @@ public class WorkMessage extends Message
         din.readFully(this.payload);
 
         super.closeInput();
+    }
+
+    public byte[] getPayload()
+    {
+        return payload;
     }
 
     @Override
