@@ -5,8 +5,12 @@ import cs455.scaling.messaging.*;
 import cs455.scaling.node.Node;
 import cs455.scaling.threadpool.ThreadPool;
 import cs455.scaling.threadpool.WorkerQueue;
+import cs455.scaling.transport.TCPReceiverThread;
 import cs455.scaling.transport.TCPSenderThread;
 import cs455.scaling.util.NotImplementedException;
+
+import java.io.IOException;
+import java.net.InetAddress;
 
 public class Server implements Node
 {
@@ -14,6 +18,8 @@ public class Server implements Node
     private final int threadPoolSize;
     private final ThreadPool threadPool;
     private final WorkerQueue workQueue;
+    private String host;
+    private TCPReceiverThread receiverThread;
 
     public Server(int port, int threadPoolSize)
     {
@@ -21,6 +27,18 @@ public class Server implements Node
         this.threadPoolSize = threadPoolSize;
         workQueue = new WorkerQueue();
         this.threadPool = new ThreadPool(threadPoolSize, workQueue);
+
+        try
+        {
+            this.host = InetAddress.getLocalHost().getHostName().toString();
+            receiverThread = new TCPReceiverThread(this.port, this);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        Thread t = new Thread(receiverThread);
+        t.start();
 
     }
 

@@ -32,7 +32,7 @@ public class Client implements Node
         {
             receiverThread = new TCPReceiverThread(0, this);
             this.clientPort = receiverThread.getPort();
-            this.clientIPAddress = InetAddress.getLocalHost().toString();
+            this.clientIPAddress = InetAddress.getLocalHost().getHostName().toString();
             Thread t = new Thread(receiverThread);
             t.start();
         } catch (IOException ioe)
@@ -52,7 +52,7 @@ public class Client implements Node
 
         try
         {
-            String host = InetAddress.getByName(args[0]).toString();
+            String host = InetAddress.getByName(args[0]).getHostName().toString();
             int port = Integer.parseInt(args[1]);
             int rate = Integer.parseInt(args[2]);
             Client client = new Client(host, port, rate);

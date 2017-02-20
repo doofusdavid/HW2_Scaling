@@ -5,6 +5,7 @@ import cs455.scaling.node.Node;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -30,7 +31,7 @@ public class TCPReceiverThread implements Runnable
             this.serverSocket = new ServerSocket(port, 10000);
             this.port = this.serverSocket.getLocalPort();
             this.node = node;
-            //System.out.println(String.format("TCPReceiverThread running on %s:%d", InetAddress.getLocalHost().getHostAddress(), this.port));
+            System.out.println(String.format("TCPReceiverThread running on %s:%d", InetAddress.getLocalHost().getHostName().toString(), this.port));
         } catch (IOException ioe)
         {
             System.out.println(ioe.getMessage());
