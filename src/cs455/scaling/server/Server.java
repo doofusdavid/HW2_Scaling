@@ -80,7 +80,7 @@ public class Server implements Node
 
         TCPSenderThread thread = new TCPSenderThread(message.getClientIPAddress(), message.getClientPort(), response);
         thread.run();
-
+        System.out.println(String.format("Connected to client %s:%d", message.getClientIPAddress(), message.getClientPort()));
     }
 
     private void ReceiveWorkMessage(WorkMessage message)
