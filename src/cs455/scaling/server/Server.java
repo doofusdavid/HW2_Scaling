@@ -77,6 +77,15 @@ public class Server implements Node
         {
             this.ReceiveServerConnectRequest((ServerConnectRequest) message);
         }
+        if (message instanceof ServerDisconnectRequest)
+        {
+            this.ReceiveServerDisconnectRequest((ServerDisconnectRequest) message);
+        }
+    }
+
+    private void ReceiveServerDisconnectRequest(ServerDisconnectRequest message)
+    {
+        this.decrementTotalConnectedClients();
     }
 
     private void ReceiveServerConnectRequest(ServerConnectRequest message)
@@ -115,6 +124,11 @@ public class Server implements Node
     synchronized public void incrementTotalConnectedClients()
     {
         this.totalConnectedClients++;
+    }
+
+    synchronized public void decrementTotalConnectedClients()
+    {
+        this.totalConnectedClients--;
     }
 
     synchronized public int getTotalConnectedClients()

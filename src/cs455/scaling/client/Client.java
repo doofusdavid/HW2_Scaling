@@ -21,6 +21,7 @@ public class Client implements Node
     private TCPReceiverThread receiverThread;
     private int totalSentCount;
     private int totalReceivedCount;
+
     public Client(String serverHost, int serverPort, int messageRate)
     {
         this.serverHost = serverHost;
@@ -44,7 +45,8 @@ public class Client implements Node
         Timer timer = new Timer();
         timer.schedule(clientStats, 0, 10000);
 
-
+        ClientDisconnectThread shutdown = new ClientDisconnectThread(this);
+        Runtime.getRuntime().addShutdownHook(new Thread(shutdown));
     }
 
     public static void main(String[] args)

@@ -51,6 +51,11 @@ public class MessageFactory
                     message = new ServerConnectResponse(data);
                     break;
                 }
+                case ServerDisconnectRequest:
+                {
+                    message = new ServerDisconnectRequest(data);
+                    break;
+                }
                 default:
                     System.out.println("Message Factory: Unknown messageType.  Exiting.");
                     return;

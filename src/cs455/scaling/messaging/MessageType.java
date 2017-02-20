@@ -5,6 +5,7 @@ public enum MessageType
     WorkMessage,
     WorkMessageResponse,
     ServerConnectRequest,
-    ServerConnectResponse
+    ServerConnectResponse,
+    ServerDisconnectRequest
 
 }
