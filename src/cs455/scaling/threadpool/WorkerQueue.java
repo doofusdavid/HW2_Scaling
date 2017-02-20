@@ -13,8 +13,11 @@ public class WorkerQueue
     {
     }
 
-    public void enqueue(WorkMessage work) throws InterruptedException
+    public synchronized void enqueue(WorkMessage work) throws InterruptedException
     {
+        if (this.queue.size() == 0)
+            notifyAll();
+
         this.queue.add(work);
     }
 

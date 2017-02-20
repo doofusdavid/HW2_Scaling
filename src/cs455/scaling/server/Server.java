@@ -7,7 +7,6 @@ import cs455.scaling.threadpool.ThreadPool;
 import cs455.scaling.threadpool.WorkerQueue;
 import cs455.scaling.transport.TCPReceiverThread;
 import cs455.scaling.transport.TCPSenderThread;
-import cs455.scaling.util.NotImplementedException;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -85,7 +84,14 @@ public class Server implements Node
 
     private void ReceiveWorkMessage(WorkMessage message)
     {
-        throw new NotImplementedException();
+        try
+        {
+            this.workQueue.enqueue(message);
+        }
+        catch (InterruptedException i)
+        {
+            i.printStackTrace();
+        }
     }
 
 }

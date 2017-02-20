@@ -10,7 +10,6 @@ public class WorkMessage extends Message
     private final String clientIPAddress;
     private final int clientPort;
     byte[] payload;
-
     /**
      * WorkMessage  creates a random 8k byte array
      */
@@ -25,8 +24,6 @@ public class WorkMessage extends Message
         this.clientIPAddress = clientIPAddress;
         this.clientPort = clientPort;
     }
-
-
     public WorkMessage(byte[] marshalledBytes) throws IOException
     {
         super(MessageType.WorkMessage);
@@ -45,6 +42,16 @@ public class WorkMessage extends Message
         din.readFully(this.payload);
 
         super.closeInput();
+    }
+
+    public String getClientIPAddress()
+    {
+        return clientIPAddress;
+    }
+
+    public int getClientPort()
+    {
+        return clientPort;
     }
 
     public byte[] getPayload()

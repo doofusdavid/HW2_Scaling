@@ -7,7 +7,7 @@ public class WorkMessageResponse extends Message
 {
     private final String hashValue;
 
-    public WorkMessageResponse(MessageType type, String hashValue)
+    public WorkMessageResponse(String hashValue)
     {
         super(MessageType.WorkMessageResponse);
         this.hashValue = hashValue;

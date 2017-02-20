@@ -39,7 +39,8 @@ public class TCPSenderThread implements Runnable
             dout.flush();
             dout.close();
             socket.close();
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             System.out.println("TCPSenderThread: " + e.getMessage());
         }

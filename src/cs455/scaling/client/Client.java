@@ -135,6 +135,7 @@ public class Client implements Node
         {
             // only increment if we confirm removal
             incrementTotalReceivedCount();
+            System.out.println("Recived work confirmation");
         }
     }
 }
