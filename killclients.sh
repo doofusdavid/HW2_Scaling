@@ -4,14 +4,8 @@
 messaging_nodes="earth jupiter mars mercury neptune saturn uranus venus raleigh"
 
 
-# Login and kick up all messaging nodes
+# Login and kill all clients
 for host in $messaging_nodes; do
-  tmux splitw "ssh cdedward@${host}.cs.colostate.edu 'killall -u cdedward java'"
-  tmux select-layout even-vertical
+  ssh cdedward@${host}.cs.colostate.edu 'killall -u cdedward java'
 done
 
-# Makes all the terminals share the same input
-tmux set-window-option synchronize-panes on
-
-# Otherwise the last pane will still be local
-ssh cdedward@honolulu.cs.colostate.edu
