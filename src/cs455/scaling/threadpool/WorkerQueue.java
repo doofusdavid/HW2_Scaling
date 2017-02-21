@@ -30,7 +30,7 @@ public class WorkerQueue
         return this.queue.remove(0);
     }
 
-    public synchronized int getSize()
+    public int getSize()
     {
         return queue.size();
     }

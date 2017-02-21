@@ -10,7 +10,7 @@ import cs455.scaling.util.ServerHashCode;
  */
 public class WorkerThread extends Thread
 {
-    private WorkerQueue workQueue;
+    private final WorkerQueue workQueue;
     private boolean isStopped;
 
     public WorkerThread(WorkerQueue workQueue)
