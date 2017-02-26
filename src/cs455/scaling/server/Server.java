@@ -1,50 +1,61 @@
 package cs455.scaling.server;
 
 
-import cs455.scaling.messaging.*;
-import cs455.scaling.node.Node;
 import cs455.scaling.threadpool.ThreadPool;
-import cs455.scaling.threadpool.WorkerQueue;
+import cs455.scaling.threadpool.WorkQueue;
 import cs455.scaling.transport.TCPReceiverThread;
-import cs455.scaling.transport.TCPSenderThread;
+import cs455.scaling.work.ReadWorkItem;
 
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.spi.SelectorProvider;
+import java.util.Iterator;
 import java.util.Timer;
 
-public class Server implements Node
+public class Server
 {
     private final int port;
     private final int threadPoolSize;
     private final ThreadPool threadPool;
-    private final WorkerQueue workQueue;
+    private final WorkQueue workQueue;
     private String host;
     private TCPReceiverThread receiverThread;
-    private int totalConnections;
-    private int totalConnectedClients;
+    private ServerSocketChannel serverSocketChannel;
+    private Selector selector;
+
 
     public Server(int port, int threadPoolSize)
     {
         this.port = port;
         this.threadPoolSize = threadPoolSize;
-        workQueue = new WorkerQueue();
+        workQueue = new WorkQueue();
         this.threadPool = new ThreadPool(threadPoolSize, workQueue);
+
+        Timer timer = new Timer();
+        ServerStatistics serverStats = new ServerStatistics(this.threadPool);
+        timer.schedule(serverStats, 0, 5000);
 
         try
         {
-            this.host = InetAddress.getLocalHost().getHostName().toString();
-            receiverThread = new TCPReceiverThread(this.port, this);
-        } catch (IOException e)
+            this.selector = SelectorProvider.provider().openSelector();
+
+            // Create a new non-blocking server socket channel
+            this.serverSocketChannel = ServerSocketChannel.open();
+            serverSocketChannel.configureBlocking(false);
+
+            // Bind the server socket to the specified address and port
+            serverSocketChannel.socket().bind(new InetSocketAddress(port));
+            serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }
 
-        Thread t = new Thread(receiverThread);
-        t.start();
-        Timer timer = new Timer();
-        ServerStatistics serverStats = new ServerStatistics(this);
-        timer.schedule(serverStats, 0, 5000);
-
+        this.ReceiveServerConnections();
     }
 
     public static void main(String[] args)
@@ -67,77 +78,32 @@ public class Server implements Node
         }
     }
 
-    public void onEvent(Message message)
+    private void ReceiveServerConnections()
     {
-        if (message instanceof WorkMessage)
+        while (true)
         {
-            this.ReceiveWorkMessage((WorkMessage) message);
+            try
+            {
+                this.selector.select();
+
+                Iterator keys = this.selector.selectedKeys().iterator();
+
+                while (keys.hasNext())
+                {
+                    SelectionKey key = (SelectionKey) keys.next();
+                    keys.remove();
+                    if (key.isAcceptable())
+                    {
+                        this.workQueue.enqueue(new ReadWorkItem(key));
+                        this.threadPool.incrementTotalConnectedClients();
+                        System.out.println("Accepting Incoming Connection");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
-        if (message instanceof ServerConnectRequest)
-        {
-            this.ReceiveServerConnectRequest((ServerConnectRequest) message);
-        }
-        if (message instanceof ServerDisconnectRequest)
-        {
-            this.ReceiveServerDisconnectRequest((ServerDisconnectRequest) message);
-        }
-    }
-
-    private void ReceiveServerDisconnectRequest(ServerDisconnectRequest message)
-    {
-        this.decrementTotalConnectedClients();
-    }
-
-    private void ReceiveServerConnectRequest(ServerConnectRequest message)
-    {
-        ServerConnectResponse response = new ServerConnectResponse(StatusCode.SUCCESS);
-
-        TCPSenderThread thread = new TCPSenderThread(message.getClientIPAddress(), message.getClientPort(), response);
-        thread.run();
-        this.incrementTotalConnectedClients();
-        System.out.println(String.format("Connected to client %s:%d", message.getClientIPAddress(), message.getClientPort()));
-    }
-
-    private void ReceiveWorkMessage(WorkMessage message)
-    {
-        try
-        {
-            this.workQueue.enqueue(message);
-            this.incrementTotalConnections();
-        }
-        catch (InterruptedException i)
-        {
-            i.printStackTrace();
-        }
-    }
-
-    synchronized public int getTotalConnections()
-    {
-        return totalConnections;
-    }
-
-    synchronized public void incrementTotalConnections()
-    {
-        this.totalConnections++;
-    }
-
-    synchronized public int getWorkQueueSize()
-    {
-        return this.workQueue.getSize();
-    }
-
-    synchronized public void incrementTotalConnectedClients()
-    {
-        this.totalConnectedClients++;
-    }
-
-    synchronized public void decrementTotalConnectedClients()
-    {
-        this.totalConnectedClients--;
-    }
-
-    synchronized public int getTotalConnectedClients()
-    {
-        return this.totalConnectedClients;
     }
 }

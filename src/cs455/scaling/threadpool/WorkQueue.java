@@ -1,17 +1,17 @@
 package cs455.scaling.threadpool;
 
-import cs455.scaling.messaging.WorkMessage;
+import cs455.scaling.work.WorkItem;
 
 import java.util.LinkedList;
 
 /**
  * Thread-safe Queue, allowing the Server to add items, and the Threadpool to remove them.
  */
-public class WorkerQueue
+public class WorkQueue
 {
-    private final LinkedList<WorkMessage> queue = new LinkedList<>();
+    private final LinkedList<WorkItem> queue = new LinkedList<>();
 
-    public WorkerQueue()
+    public WorkQueue()
     {
     }
 
@@ -21,7 +21,7 @@ public class WorkerQueue
      * @param work
      * @throws InterruptedException
      */
-    public synchronized void enqueue(WorkMessage work) throws InterruptedException
+    public synchronized void enqueue(WorkItem work) throws InterruptedException
     {
         if (this.queue.size() == 0)
             notifyAll();
@@ -34,7 +34,7 @@ public class WorkerQueue
      * @return the instance of work
      * @throws InterruptedException
      */
-    public synchronized WorkMessage dequeue() throws InterruptedException
+    public synchronized WorkItem dequeue() throws InterruptedException
     {
         while (this.queue.size() == 0)
         {
