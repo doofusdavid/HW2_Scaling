@@ -11,6 +11,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
 import java.util.Timer;
@@ -92,11 +93,12 @@ public class Server
                 {
                     SelectionKey key = (SelectionKey) keys.next();
                     keys.remove();
+//                    if(!key.isReadable())
+//                        continue;
+
                     if (key.isAcceptable())
                     {
-                        this.workQueue.enqueue(new ReadWorkItem(key));
-                        this.threadPool.incrementTotalConnectedClients();
-                        System.out.println("Accepting Incoming Connection");
+                        processIncomingConnection(key, selector);
                     }
                 }
             }
@@ -105,5 +107,20 @@ public class Server
                 e.printStackTrace();
             }
         }
+    }
+
+    private void processIncomingConnection(SelectionKey key, Selector selector) throws IOException, InterruptedException
+    {
+        ServerSocketChannel serverSocket = (ServerSocketChannel) key.channel();
+        SocketChannel clientSocket = serverSocket.accept();
+        clientSocket.configureBlocking(false);
+
+        System.out.println("Incoming connection from " + clientSocket.getRemoteAddress());
+
+
+        SelectionKey clientKey = clientSocket.register(selector, SelectionKey.OP_READ);
+        this.workQueue.enqueue(new ReadWorkItem(clientKey));
+        this.threadPool.incrementTotalConnectedClients();
+        System.out.println("Accepting Incoming Connection");
     }
 }
