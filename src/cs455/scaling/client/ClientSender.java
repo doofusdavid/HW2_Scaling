@@ -14,7 +14,7 @@ import java.util.Iterator;
 import java.util.Random;
 
 
-public class NIOClientSender implements Runnable
+public class ClientSender implements Runnable
 {
     public static final int PAYLOAD_SIZE = 8192;
     private final InetAddress serverAddress;
@@ -25,7 +25,7 @@ public class NIOClientSender implements Runnable
     private final SentHashList sentHashCodes;
 
 
-    public NIOClientSender(InetAddress serverAddress, int serverPort, Client client, int sendRate, SentHashList sentHashCodes) throws IOException
+    public ClientSender(InetAddress serverAddress, int serverPort, Client client, int sendRate, SentHashList sentHashCodes) throws IOException
     {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;

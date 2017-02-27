@@ -15,7 +15,7 @@ public class Client
         SentHashList sentHashCodes = new SentHashList();
         try
         {
-            NIOClientSender clientThread = new NIOClientSender(serverHost, serverPort, this, messageRate, sentHashCodes);
+            ClientSender clientThread = new ClientSender(serverHost, serverPort, this, messageRate, sentHashCodes);
             Thread t = new Thread(clientThread);
             t.start();
         }
