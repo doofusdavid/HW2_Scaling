@@ -49,7 +49,7 @@ public class Server
         {
             e.printStackTrace();
         }
-        this.threadPool = new ThreadPool(threadPoolSize, workQueue, selector);
+        this.threadPool = new ThreadPool(threadPoolSize, workQueue);
 
         Timer timer = new Timer();
         ServerStatistics serverStats = new ServerStatistics(this.threadPool);
