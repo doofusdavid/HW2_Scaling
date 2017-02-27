@@ -113,16 +113,15 @@ public class NIOClientSender implements Runnable
     {
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
-        // TODO: This may break, 20 was based on lenth of 160 bit (20 byte) hash
-        ByteBuffer readbuff = ByteBuffer.allocate(40);
+        ByteBuffer readBuffer = ByteBuffer.allocate(40);
 
         int numRead = 0;
         try
         {
-            while (readbuff.hasRemaining() && numRead != -1)
-                numRead = socketChannel.read(readbuff);
+            while (readBuffer.hasRemaining() && numRead != -1)
+                numRead = socketChannel.read(readBuffer);
 
-            readbuff.rewind();
+            readBuffer.rewind();
         }
         catch (IOException e)
         {
@@ -140,7 +139,7 @@ public class NIOClientSender implements Runnable
             System.exit(0);
         }
 
-        String hashedValue = new String(readbuff.array());
+        String hashedValue = new String(readBuffer.array());
 
         if (sentHashCodes.remove(hashedValue.trim()))
         {
