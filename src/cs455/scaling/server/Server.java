@@ -15,6 +15,10 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
 import java.util.Timer;
 
+/**
+ * Main Server class.  Takes in parameters and listens for incoming connections from Clients.  Launches a
+ * ThreadPool to maintain threads, and a Statistics thread to monitor connections and throughput to the server.
+ */
 public class Server
 {
     private final ThreadPool threadPool;
@@ -23,6 +27,12 @@ public class Server
     private Selector selector;
 
 
+    /**
+     * Constructor creates a ServerSocketChannel
+     *
+     * @param port           The Port the server should listen on
+     * @param threadPoolSize Number of Threads that should process this Server's tasks.
+     */
     public Server(int port, int threadPoolSize)
     {
         workQueue = new WorkQueue();
@@ -52,6 +62,10 @@ public class Server
         this.ReceiveServerConnections();
     }
 
+    /**
+     * Takes in parameters and creates the Server Object
+     * @param args
+     */
     public static void main(String[] args)
     {
         if (args.length != 2)
@@ -72,6 +86,9 @@ public class Server
         }
     }
 
+    /**
+     * Loop which monitors the selector for new Client connections.
+     */
     private void ReceiveServerConnections()
     {
         while (true)
@@ -86,8 +103,6 @@ public class Server
                 {
                     SelectionKey key = (SelectionKey) keys.next();
                     keys.remove();
-//                    if(!key.isReadable())
-//                        continue;
 
                     if (key.isAcceptable())
                     {
@@ -102,6 +117,13 @@ public class Server
         }
     }
 
+    /**
+     *
+     * @param key SelectionKey representing the incoming Client
+     * @param selector The Selector used to register the client
+     * @throws IOException
+     * @throws InterruptedException
+     */
     private void processIncomingConnection(SelectionKey key, Selector selector) throws IOException, InterruptedException
     {
         ServerSocketChannel serverSocket = (ServerSocketChannel) key.channel();

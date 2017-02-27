@@ -5,11 +5,23 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Timer;
 
+/**
+ * Main Client class.  Launches a ClientSender thread, responsible for sending packets to the Server
+ * and reconciling the returned Hash Code.  Launches a ClientStatistics timer thread to display
+ * statistics regarding messages sent and received.  Maintains a count of messages sent and received.
+ */
 public class Client
 {
     private int totalSentCount;
     private int totalReceivedCount;
 
+    /**
+     * Constructor which launches ClientSender thread, and a ClientStatistics Thread.
+     *
+     * @param serverHost  Address of the Server
+     * @param serverPort  Port the Server is listening on
+     * @param messageRate Rate that this Client should send messages (messageRate/sec)
+     */
     public Client(InetAddress serverHost, int serverPort, int messageRate)
     {
         SentHashList sentHashCodes = new SentHashList();
@@ -29,6 +41,10 @@ public class Client
         timer.schedule(clientStats, 0, 10000);
     }
 
+    /**
+     * Takes in parameters and instantiates a new Client.
+     * @param args Arguments are the Server Host, Server Port and Message Rate (Messages/sec)
+     */
     public static void main(String[] args)
     {
         if (args.length != 3)
