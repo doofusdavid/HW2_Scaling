@@ -1,8 +1,6 @@
 package cs455.scaling.client;
 
 
-import cs455.scaling.messaging.WorkMessageResponse;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Timer;
@@ -68,31 +66,6 @@ public class Client
 
     }
 
-    public int getMessageRate()
-    {
-        return messageRate;
-    }
-
-    public InetAddress getServerHost()
-    {
-        return serverHost;
-    }
-
-    public int getServerPort()
-    {
-        return serverPort;
-    }
-
-    public String getClientIPAddress()
-    {
-        return clientIPAddress;
-    }
-
-    public int getClientPort()
-    {
-        return clientPort;
-    }
-
     synchronized void incrementTotalSentCount()
     {
         totalSentCount++;
@@ -111,21 +84,5 @@ public class Client
     synchronized int getTotalReceivedCount()
     {
         return totalReceivedCount;
-    }
-
-    synchronized void addSentHashCode(String hashValue)
-    {
-        sentHashCodes.add(hashValue);
-    }
-
-    private void ReceiveWorkMessageResponse(WorkMessageResponse message)
-    {
-        String hashResponse = message.getHashValue();
-        if (sentHashCodes.remove(hashResponse))
-        {
-            // only increment if we confirm removal
-            incrementTotalReceivedCount();
-//            System.out.println("Recived work confirmation");
-        }
     }
 }

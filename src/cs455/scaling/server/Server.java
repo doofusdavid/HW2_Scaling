@@ -3,7 +3,6 @@ package cs455.scaling.server;
 
 import cs455.scaling.threadpool.ThreadPool;
 import cs455.scaling.threadpool.WorkQueue;
-import cs455.scaling.transport.TCPReceiverThread;
 import cs455.scaling.work.ReadWorkItem;
 
 import java.io.IOException;
@@ -23,7 +22,6 @@ public class Server
     private final ThreadPool threadPool;
     private final WorkQueue workQueue;
     private String host;
-    private TCPReceiverThread receiverThread;
     private ServerSocketChannel serverSocketChannel;
     private Selector selector;
 

@@ -9,7 +9,6 @@ public class ServerHashCode
 {
     public static String SHA1FromBytes(byte[] data)
     {
-        //System.out.println("byte size:" + data.length);
         MessageDigest digest = null;
         try
         {
