@@ -14,7 +14,6 @@ public class ServerStatistics extends TimerTask
     {
         this.threadPool = threadPool;
         previousConnections = this.threadPool.getTotalConnections();
-        workQueueSize = this.threadPool.getWorkQueueSize();
     }
 
     @Override
@@ -26,6 +25,6 @@ public class ServerStatistics extends TimerTask
         double connectionsPerSecond = deltaConnections / 5.0;
         System.out.print(System.nanoTime() + " ");
         System.out.print("Current Server Throughput: ");
-        System.out.println(String.format("%.1f messages/s, %d total messages, Active Client Connections: %d, Items in work queue: %d", connectionsPerSecond, totalConnections, this.threadPool.getTotalConnectedClients(), workQueueSize));
+        System.out.println(String.format("%.1f messages/s, %d total messages, Active Client Connections: %d, Items in work queue: %d", connectionsPerSecond, totalConnections, this.threadPool.getTotalConnectedClients(), this.threadPool.getWorkQueueSize()));
     }
 }
