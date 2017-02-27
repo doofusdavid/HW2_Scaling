@@ -3,6 +3,9 @@ package cs455.scaling.work;
 
 import java.nio.channels.SelectionKey;
 
+/**
+ * WriteWorkItem represents a completed Hash Value to be sent back to the Client represented by Key
+ */
 public class WriteWorkItem implements WorkItem
 {
     private final SelectionKey key;

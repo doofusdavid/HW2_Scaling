@@ -3,6 +3,10 @@ package cs455.scaling.work;
 
 import java.nio.channels.SelectionKey;
 
+/**
+ * HashWorkItem represents block of data, ready to be read from, before being sent back to the
+ * Client represented by Key
+ */
 public class HashWorkItem implements WorkItem
 {
     final byte[] payload;
