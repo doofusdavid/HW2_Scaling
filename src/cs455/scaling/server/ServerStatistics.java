@@ -4,18 +4,31 @@ import cs455.scaling.threadpool.ThreadPool;
 
 import java.util.TimerTask;
 
+/**
+ * Class which monitors and displays statistics about the running Server
+ */
 public class ServerStatistics extends TimerTask
 {
     private final ThreadPool threadPool;
     private int previousConnections;
     private int workQueueSize;
 
+    /**
+     * Constructor
+     *
+     * @param threadPool ThreadPool belonging to the Server which will be monitored.
+     */
     public ServerStatistics(ThreadPool threadPool)
     {
         this.threadPool = threadPool;
         previousConnections = this.threadPool.getTotalConnections();
     }
 
+    /**
+     * Counts the difference in connections between the last call and this one.  Uses that value to determine
+     * the connections per second.  Also displays the number of Active Client Connections, and the number of items
+     * in the Work Queue.
+     */
     @Override
     public void run()
     {
