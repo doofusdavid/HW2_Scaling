@@ -7,7 +7,7 @@ messaging_nodes="earth jupiter mars mercury neptune saturn uranus venus raleigh 
 # Login and kick up all messaging nodes
 for host in $messaging_nodes; do
   tmux splitw "ssh cdedward@${host}.cs.colostate.edu 'cs455hw2client honolulu.cs.colostate.edu 8001 10'"
-  tmux select-layout even-vertical
+  tmux select-layout tiled
 done
 
 # Makes all the terminals share the same input
