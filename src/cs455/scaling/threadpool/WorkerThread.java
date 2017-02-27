@@ -33,7 +33,7 @@ public class WorkerThread extends Thread
     {
         while (!isStopped)
         {
-            // Blocks until available
+
             WorkItem work = null;
             try
             {
@@ -60,23 +60,31 @@ public class WorkerThread extends Thread
                     throw new IllegalArgumentException("Unknown WorkItem Type");
                 }
             }
-            catch (IOException ioe)
+            catch (Exception e)
             {
-                ioe.printStackTrace();
+                e.printStackTrace();
             }
+
         }
     }
 
-    private void processRead(ReadWorkItem work) throws IOException
+    private void processRead(ReadWorkItem work) throws IOException, InterruptedException
     {
-        SocketChannel channel = (SocketChannel) work.getKey().channel();
+        SelectionKey workKey = work.getKey();
+        SocketChannel channel = (SocketChannel) workKey.channel();
         ByteBuffer readBuffer = ByteBuffer.allocate(PAYLOAD_SIZE);
+
+        //this.threadPool.getSelector().select();
 
         // Attempt to read off the channel
         int numRead = 0;
         try
         {
-            numRead = channel.read(readBuffer);
+            while (readBuffer.hasRemaining() && numRead != -1)
+            {
+                numRead = channel.read(readBuffer);
+            }
+            readBuffer.rewind();
         }
         catch (IOException e)
         {
@@ -96,14 +104,14 @@ public class WorkerThread extends Thread
             this.threadPool.decrementTotalConnectedClients();
             return;
         }
-
         HashWorkItem hashWorkItem = new HashWorkItem(work.getKey(), readBuffer.array());
-        System.out.println("payload: " + new String(readBuffer.array()));
+        readBuffer.rewind();
         try
         {
             this.workQueue.enqueue(hashWorkItem);
             this.threadPool.incrementTotalConnections();
-            work.getKey().interestOps(SelectionKey.OP_WRITE);
+
+            SelectionKey key = channel.register(work.getKey().selector(), SelectionKey.OP_WRITE);
         }
         catch (InterruptedException e)
         {
@@ -125,19 +133,26 @@ public class WorkerThread extends Thread
         }
     }
 
-    private void processWrite(WriteWorkItem work)
+    private void processWrite(WriteWorkItem work) throws InterruptedException
     {
         SocketChannel channel = (SocketChannel) work.getKey().channel();
-        System.out.println(work.getHashValue());
-        ByteBuffer buffer = ByteBuffer.wrap(work.getHashValue().getBytes());
+        String paddedString = String.format("%40s", work.getHashValue());
+//        System.out.println("Hash to send ("+paddedString.length()+"): " + paddedString);
+        //System.out.println("Hash to send ("+work.getHashValue().length()+"): " + work.getHashValue());
+        ByteBuffer padBuffer = ByteBuffer.wrap(paddedString.getBytes());
+        //ByteBuffer buffer = ByteBuffer.wrap(work.getHashValue().getBytes());
+
         try
         {
-            channel.write(buffer);
+            padBuffer.rewind();
+            while (padBuffer.hasRemaining())
+                channel.write(padBuffer);
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
+        this.workQueue.enqueue(new ReadWorkItem(work.getKey()));
         work.getKey().interestOps(SelectionKey.OP_READ);
 
 

@@ -33,11 +33,7 @@ public class Server
         this.port = port;
         this.threadPoolSize = threadPoolSize;
         workQueue = new WorkQueue();
-        this.threadPool = new ThreadPool(threadPoolSize, workQueue);
 
-        Timer timer = new Timer();
-        ServerStatistics serverStats = new ServerStatistics(this.threadPool);
-        timer.schedule(serverStats, 0, 5000);
 
         try
         {
@@ -55,6 +51,11 @@ public class Server
         {
             e.printStackTrace();
         }
+        this.threadPool = new ThreadPool(threadPoolSize, workQueue, selector);
+
+        Timer timer = new Timer();
+        ServerStatistics serverStats = new ServerStatistics(this.threadPool);
+        timer.schedule(serverStats, 0, 5000);
 
         this.ReceiveServerConnections();
     }

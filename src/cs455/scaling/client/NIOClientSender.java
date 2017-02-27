@@ -85,24 +85,28 @@ public class NIOClientSender implements Runnable
 
     }
 
-    private void write(SelectionKey key) throws IOException
+    private void write(SelectionKey key) throws IOException, InterruptedException
     {
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
         byte[] payload = this.getPayload();
         ByteBuffer buf = ByteBuffer.wrap(payload);
-        socketChannel.write(buf);
+        buf.rewind();
+
+        while (buf.hasRemaining())
+            socketChannel.write(buf);
+
         this.saveHashValue(payload);
         key.interestOps(SelectionKey.OP_READ);
         this.client.incrementTotalSentCount();
+        Thread.sleep(1000 / sendRate);
 
     }
 
     private void saveHashValue(byte[] payload)
     {
         String hashValue = ServerHashCode.SHA1FromBytes(payload);
-        System.out.println(new String(payload));
-        System.out.println("Sent hash:" + hashValue);
+        //System.out.println("Sent hash ("+ hashValue.length()+"):" + hashValue);
 
         sentHashCodes.add(hashValue);
     }
@@ -112,12 +116,15 @@ public class NIOClientSender implements Runnable
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
         // TODO: This may break, 20 was based on lenth of 160 bit (20 byte) hash
-        ByteBuffer readbuff = ByteBuffer.allocate(39);
+        ByteBuffer readbuff = ByteBuffer.allocate(40);
 
         int numRead = 0;
         try
         {
-            numRead = socketChannel.read(readbuff);
+            while (readbuff.hasRemaining() && numRead != -1)
+                numRead = socketChannel.read(readbuff);
+
+            readbuff.rewind();
         }
         catch (IOException e)
         {
@@ -136,14 +143,16 @@ public class NIOClientSender implements Runnable
         }
 
         String hashedValue = new String(readbuff.array());
-        System.out.println(hashedValue);
-        key.interestOps(SelectionKey.OP_WRITE);
 
-        if (sentHashCodes.remove(hashedValue))
+        if (sentHashCodes.remove(hashedValue.trim()))
         {
             this.client.incrementTotalReceivedCount();
-            System.out.println("Received Work Confirmation");
+            //System.out.println("Received Work Confirmation");
+        } else
+        {
+            System.out.println("Work not confirmed");
         }
+        key.interestOps(SelectionKey.OP_WRITE);
     }
 
     private SocketChannel initiateConnection() throws IOException

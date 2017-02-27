@@ -1,19 +1,22 @@
 package cs455.scaling.threadpool;
 
+import java.nio.channels.Selector;
 import java.util.ArrayList;
 
 public class ThreadPool
 {
     private final WorkQueue workQueue;
     private final ArrayList<WorkerThread> threads;
+    private final Selector selector;
     private int totalConnections;
     private int totalConnectedClients;
 
 
-    public ThreadPool(int threadCount, WorkQueue workQueue)
+    public ThreadPool(int threadCount, WorkQueue workQueue, Selector selector)
     {
         this.threads = new ArrayList<>(threadCount);
         this.workQueue = workQueue;
+        this.selector = selector;
 
         for (int i = 0; i < threadCount; i++)
         {
@@ -55,4 +58,8 @@ public class ThreadPool
         return this.totalConnectedClients;
     }
 
+    public Selector getSelector()
+    {
+        return selector;
+    }
 }
