@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Select nodes, info in ~info/machines
 # jupiter
-messaging_nodes="earth jupiter mars mercury neptune saturn uranus venus raleigh"
+messaging_nodes="earth jupiter mars mercury neptune saturn uranus venus raleigh boston columbia olympia topeka cooper loveland keystone annapolis albany"
 
 
 # Login and kill all clients

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Select nodes, info in ~info/machines
 # jupiter
-messaging_nodes="earth jupiter mars mercury neptune saturn uranus venus raleigh"
+messaging_nodes="earth jupiter mars mercury neptune saturn uranus venus raleigh boston columbia olympia topeka cooper loveland keystone annapolis albany"
 
 
 # Login and kick up all messaging nodes
 for host in $messaging_nodes; do
-  tmux splitw "ssh cdedward@${host}.cs.colostate.edu 'cs455hw2client honolulu.cs.colostate.edu 8001 4'"
+  tmux splitw "ssh cdedward@${host}.cs.colostate.edu 'cs455hw2client honolulu.cs.colostate.edu 8001 10'"
   tmux select-layout even-vertical
 done
 
