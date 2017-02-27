@@ -18,7 +18,7 @@ public class WorkQueue
     /**
      * Enqueues an instance of work.
      *
-     * @param work
+     * @param work a WorkItem to add to the Queue
      * @throws InterruptedException
      */
     public synchronized void enqueue(WorkItem work) throws InterruptedException
@@ -31,7 +31,7 @@ public class WorkQueue
 
     /**
      * Dequeues an instance of work.  Blocks if the queue is currently empty
-     * @return the instance of work
+     * @return WorkItem at the head of the Queue
      * @throws InterruptedException
      */
     public synchronized WorkItem dequeue() throws InterruptedException
@@ -43,7 +43,12 @@ public class WorkQueue
         return this.queue.remove(0);
     }
 
-    public synchronized int getSize()
+    /**
+     * Gets the size of the Queue for statistics
+     *
+     * @return
+     */
+    synchronized int getSize()
     {
         return queue.size();
     }
