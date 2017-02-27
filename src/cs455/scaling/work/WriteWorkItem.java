@@ -5,8 +5,8 @@ import java.nio.channels.SelectionKey;
 
 public class WriteWorkItem implements WorkItem
 {
-    private SelectionKey key;
-    private String hashValue;
+    private final SelectionKey key;
+    private final String hashValue;
 
     public WriteWorkItem(SelectionKey key, String hashValue)
     {

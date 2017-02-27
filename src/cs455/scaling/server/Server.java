@@ -17,28 +17,22 @@ import java.util.Timer;
 
 public class Server
 {
-    private final int port;
-    private final int threadPoolSize;
     private final ThreadPool threadPool;
     private final WorkQueue workQueue;
     private String host;
-    private ServerSocketChannel serverSocketChannel;
     private Selector selector;
 
 
     public Server(int port, int threadPoolSize)
     {
-        this.port = port;
-        this.threadPoolSize = threadPoolSize;
         workQueue = new WorkQueue();
-
 
         try
         {
             this.selector = SelectorProvider.provider().openSelector();
 
             // Create a new non-blocking server socket channel
-            this.serverSocketChannel = ServerSocketChannel.open();
+            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
             serverSocketChannel.configureBlocking(false);
 
             // Bind the server socket to the specified address and port

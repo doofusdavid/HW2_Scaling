@@ -16,15 +16,13 @@ import java.util.Random;
 
 public class NIOClientSender implements Runnable
 {
+    public static final int PAYLOAD_SIZE = 8192;
     private final InetAddress serverAddress;
     private final int serverPort;
     private final Client client;
     private final Selector selector;
     private final int sendRate;
-    private final int PAYLOAD_SIZE = 8192;
     private final SentHashList sentHashCodes;
-    private long lastSentTime;
-    private SocketChannel socketChannel;
 
 
     public NIOClientSender(InetAddress serverAddress, int serverPort, Client client, int sendRate, SentHashList sentHashCodes) throws IOException
@@ -35,9 +33,9 @@ public class NIOClientSender implements Runnable
         this.sendRate = sendRate;
         this.sentHashCodes = sentHashCodes;
         this.selector = SelectorProvider.provider().openSelector();
-        this.socketChannel = this.initiateConnection();
-        this.socketChannel.configureBlocking(false);
-        this.socketChannel.register(this.selector, SelectionKey.OP_WRITE);
+        SocketChannel socketChannel = this.initiateConnection();
+        socketChannel.configureBlocking(false);
+        socketChannel.register(this.selector, SelectionKey.OP_WRITE);
     }
 
     @Override

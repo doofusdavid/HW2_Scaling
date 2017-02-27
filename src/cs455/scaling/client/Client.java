@@ -7,26 +7,15 @@ import java.util.Timer;
 
 public class Client
 {
-    private final InetAddress serverHost;
-    private final int serverPort;
-    private final int messageRate;
-    private final SentHashList sentHashCodes;
-    private String clientIPAddress;
-    private int clientPort;
-    private NIOClientSender clientThread;
     private int totalSentCount;
     private int totalReceivedCount;
 
     public Client(InetAddress serverHost, int serverPort, int messageRate)
     {
-        this.serverHost = serverHost;
-        this.serverPort = serverPort;
-        this.messageRate = messageRate;
-        this.sentHashCodes = new SentHashList();
+        SentHashList sentHashCodes = new SentHashList();
         try
         {
-            clientThread = new NIOClientSender(this.serverHost, this.serverPort, this, this.messageRate, this.sentHashCodes);
-            this.clientIPAddress = InetAddress.getLocalHost().getHostName().toString();
+            NIOClientSender clientThread = new NIOClientSender(serverHost, serverPort, this, messageRate, sentHashCodes);
             Thread t = new Thread(clientThread);
             t.start();
         }

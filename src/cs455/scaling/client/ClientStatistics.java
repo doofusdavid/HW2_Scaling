@@ -5,7 +5,7 @@ import java.util.TimerTask;
 
 public class ClientStatistics extends TimerTask
 {
-    private Client client;
+    private final Client client;
 
     public ClientStatistics(Client client)
     {

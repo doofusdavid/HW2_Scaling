@@ -16,9 +16,9 @@ import java.nio.channels.SocketChannel;
  */
 public class WorkerThread extends Thread
 {
+    public static final int PAYLOAD_SIZE = 8192;
     private final WorkQueue workQueue;
     private final ThreadPool threadPool;
-    private final int PAYLOAD_SIZE = 8192;
     private boolean isStopped;
 
     public WorkerThread(WorkQueue workQueue, ThreadPool threadPool)
@@ -136,11 +136,11 @@ public class WorkerThread extends Thread
     private void processWrite(WriteWorkItem work) throws InterruptedException
     {
         SocketChannel channel = (SocketChannel) work.getKey().channel();
+
+        // Hash value can be < 40 characters, so we want to pad it to get up to 40, as that's what the client is expecting back
         String paddedString = String.format("%40s", work.getHashValue());
-//        System.out.println("Hash to send ("+paddedString.length()+"): " + paddedString);
-        //System.out.println("Hash to send ("+work.getHashValue().length()+"): " + work.getHashValue());
+
         ByteBuffer padBuffer = ByteBuffer.wrap(paddedString.getBytes());
-        //ByteBuffer buffer = ByteBuffer.wrap(work.getHashValue().getBytes());
 
         try
         {
@@ -157,14 +157,5 @@ public class WorkerThread extends Thread
 
 
     }
-    public synchronized void stopThread()
-    {
-        isStopped = true;
-        this.interrupt();
-    }
 
-    public synchronized boolean isStopped()
-    {
-        return isStopped;
-    }
 }

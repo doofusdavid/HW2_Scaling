@@ -5,14 +5,12 @@ import java.util.ArrayList;
 public class ThreadPool
 {
     private final WorkQueue workQueue;
-    private final ArrayList<WorkerThread> threads;
     private int totalConnections;
     private int totalConnectedClients;
 
-
     public ThreadPool(int threadCount, WorkQueue workQueue)
     {
-        this.threads = new ArrayList<>(threadCount);
+        ArrayList<WorkerThread> threads = new ArrayList<>(threadCount);
         this.workQueue = workQueue;
 
         for (int i = 0; i < threadCount; i++)

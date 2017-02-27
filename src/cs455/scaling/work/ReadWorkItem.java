@@ -5,7 +5,7 @@ import java.nio.channels.SelectionKey;
 
 public class ReadWorkItem implements WorkItem
 {
-    private SelectionKey key;
+    private final SelectionKey key;
 
     public ReadWorkItem(SelectionKey key)
     {

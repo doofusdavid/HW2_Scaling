@@ -5,8 +5,8 @@ import java.nio.channels.SelectionKey;
 
 public class HashWorkItem implements WorkItem
 {
-    byte[] payload;
-    private SelectionKey key;
+    final byte[] payload;
+    private final SelectionKey key;
 
     public HashWorkItem(SelectionKey key, byte[] payload)
     {

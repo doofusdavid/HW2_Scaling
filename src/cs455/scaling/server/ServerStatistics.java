@@ -6,7 +6,7 @@ import java.util.TimerTask;
 
 public class ServerStatistics extends TimerTask
 {
-    private ThreadPool threadPool;
+    private final ThreadPool threadPool;
     private int previousConnections;
     private int workQueueSize;
 
