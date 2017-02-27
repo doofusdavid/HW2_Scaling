@@ -49,7 +49,7 @@ public class NIOClientSender implements Runnable
             {
 
                 // Wait for an event one of the registered channels
-                this.selector.select(1000 / sendRate);
+                this.selector.select();
 
                 // Iterate over the set of keys for which events are available
                 Iterator selectedKeys = this.selector.selectedKeys().iterator();
@@ -94,13 +94,17 @@ public class NIOClientSender implements Runnable
         socketChannel.write(buf);
         this.saveHashValue(payload);
         key.interestOps(SelectionKey.OP_READ);
+        this.client.incrementTotalSentCount();
 
     }
 
     private void saveHashValue(byte[] payload)
     {
         String hashValue = ServerHashCode.SHA1FromBytes(payload);
-        client.addSentHashCode(hashValue);
+        System.out.println(new String(payload));
+        System.out.println("Sent hash:" + hashValue);
+
+        sentHashCodes.add(hashValue);
     }
 
     private void read(SelectionKey key) throws IOException
@@ -108,7 +112,7 @@ public class NIOClientSender implements Runnable
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
         // TODO: This may break, 20 was based on lenth of 160 bit (20 byte) hash
-        ByteBuffer readbuff = ByteBuffer.allocate(20);
+        ByteBuffer readbuff = ByteBuffer.allocate(39);
 
         int numRead = 0;
         try
@@ -131,10 +135,13 @@ public class NIOClientSender implements Runnable
             System.exit(0);
         }
 
-        String hashedValue = readbuff.toString();
+        String hashedValue = new String(readbuff.array());
+        System.out.println(hashedValue);
+        key.interestOps(SelectionKey.OP_WRITE);
+
         if (sentHashCodes.remove(hashedValue))
         {
-            client.incrementTotalReceivedCount();
+            this.client.incrementTotalReceivedCount();
             System.out.println("Received Work Confirmation");
         }
     }

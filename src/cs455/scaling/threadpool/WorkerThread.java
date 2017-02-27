@@ -98,6 +98,7 @@ public class WorkerThread extends Thread
         }
 
         HashWorkItem hashWorkItem = new HashWorkItem(work.getKey(), readBuffer.array());
+        System.out.println("payload: " + new String(readBuffer.array()));
         try
         {
             this.workQueue.enqueue(hashWorkItem);
@@ -127,6 +128,7 @@ public class WorkerThread extends Thread
     private void processWrite(WriteWorkItem work)
     {
         SocketChannel channel = (SocketChannel) work.getKey().channel();
+        System.out.println(work.getHashValue());
         ByteBuffer buffer = ByteBuffer.wrap(work.getHashValue().getBytes());
         try
         {
