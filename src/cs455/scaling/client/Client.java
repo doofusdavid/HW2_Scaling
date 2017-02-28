@@ -24,10 +24,9 @@ public class Client
      */
     public Client(InetAddress serverHost, int serverPort, int messageRate)
     {
-        SentHashList sentHashCodes = new SentHashList();
         try
         {
-            ClientSender clientThread = new ClientSender(serverHost, serverPort, this, messageRate, sentHashCodes);
+            ClientSender clientThread = new ClientSender(serverHost, serverPort, this, messageRate);
             Thread t = new Thread(clientThread);
             t.start();
         }

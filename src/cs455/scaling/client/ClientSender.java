@@ -13,35 +13,54 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
 import java.util.Random;
 
-
+/**
+ * Class responsible for establishing a connection to a Server, then sending and receiving data until shut down.
+ */
 public class ClientSender implements Runnable
 {
     public static final int PAYLOAD_SIZE = 8192;
     private final InetAddress serverAddress;
     private final int serverPort;
     private final Client client;
-    private final Selector selector;
     private final int sendRate;
     private final SentHashList sentHashCodes;
+    private Selector selector;
 
-
-    public ClientSender(InetAddress serverAddress, int serverPort, Client client, int sendRate, SentHashList sentHashCodes) throws IOException
+    /**
+     * Creates and initializes a ClientSender.
+     *
+     * @param serverAddress InetAddress of the Server
+     * @param serverPort    Port to connect to Server on
+     * @param client        Client which maintains statistics on connections.
+     * @param sendRate      Number of transmissions to send to the Server per second.
+     */
+    public ClientSender(InetAddress serverAddress, int serverPort, Client client, int sendRate) throws IOException
     {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
         this.client = client;
         this.sendRate = sendRate;
-        this.sentHashCodes = sentHashCodes;
-        this.selector = SelectorProvider.provider().openSelector();
-        SocketChannel socketChannel = this.initiateConnection();
-        socketChannel.configureBlocking(false);
-        socketChannel.register(this.selector, SelectionKey.OP_WRITE);
+        this.sentHashCodes = new SentHashList();
     }
 
     @Override
     public void run()
     {
-        while (true)
+        try
+        {
+            // Establish connection to server and register interest in Writing
+            this.selector = SelectorProvider.provider().openSelector();
+            SocketChannel socketChannel = this.initiateConnection();
+            socketChannel.configureBlocking(false);
+            socketChannel.register(this.selector, SelectionKey.OP_WRITE);
+        }
+        catch (IOException ioe)
+        {
+            System.out.println("Error connecting to client.");
+        }
+
+        // Loop until interrupted, sending data.
+        while (!Thread.interrupted())
         {
             try
             {
@@ -77,12 +96,18 @@ public class ClientSender implements Runnable
             }
             catch (Exception e)
             {
-                e.printStackTrace();
+                System.out.println("Error in Client.  Disconnecting.");
             }
         }
 
     }
 
+    /**
+     * Get and write a byte array to the server.  Then, sleep for the sendRate time.
+     * @param key SelectionKey representing the Server
+     * @throws IOException If connection fails
+     * @throws InterruptedException If Thread.sleep is interrupted
+     */
     private void write(SelectionKey key) throws IOException, InterruptedException
     {
         SocketChannel socketChannel = (SocketChannel) key.channel();
@@ -95,12 +120,21 @@ public class ClientSender implements Runnable
             socketChannel.write(buf);
 
         this.saveHashValue(payload);
+
+        // After writing, register an interest in Reading.
         key.interestOps(SelectionKey.OP_READ);
+
         this.client.incrementTotalSentCount();
+
+        // Sleep for the given time
         Thread.sleep(1000 / sendRate);
 
     }
 
+    /**
+     * Generate Hash Value from the byte array and save it to the sent Hash list.
+     * @param payload Byte Array containing the payload to hash.
+     */
     private void saveHashValue(byte[] payload)
     {
         String hashValue = ServerHashCode.SHA1FromBytes(payload);
@@ -109,6 +143,11 @@ public class ClientSender implements Runnable
         sentHashCodes.add(hashValue);
     }
 
+    /**
+     * read a response from the Server
+     * @param key Key representing the Server
+     * @throws IOException If the read fails
+     */
     private void read(SelectionKey key) throws IOException
     {
         SocketChannel socketChannel = (SocketChannel) key.channel();
@@ -149,9 +188,15 @@ public class ClientSender implements Runnable
         {
             System.out.println("Work not confirmed");
         }
+        // After reading, register an interest in Writing
         key.interestOps(SelectionKey.OP_WRITE);
     }
 
+    /**
+     * Initiate the connection to the Server
+     * @return The SocketChannel to the Server
+     * @throws IOException If connection fails
+     */
     private SocketChannel initiateConnection() throws IOException
     {
         // Create a non-blocking socket channel
@@ -164,26 +209,27 @@ public class ClientSender implements Runnable
 
     }
 
-    private void completeConnection(SelectionKey key)
+    /**
+     * Finish the connection to the Server
+     *
+     * @param key SelectionKey representing Server
+     */
+    private void completeConnection(SelectionKey key) throws IOException
     {
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
-        try
-        {
-            socketChannel.finishConnect();
-        }
-        catch (IOException e)
-        {
-            System.out.println(e);
-            key.cancel();
-            return;
-        }
+        socketChannel.finishConnect();
 
         // We're ready to write
         key.interestOps(SelectionKey.OP_WRITE);
     }
 
-    public byte[] getPayload()
+    /**
+     * Generate a random byte array payload
+     *
+     * @return Payload of random data.
+     */
+    private byte[] getPayload()
     {
         Random random = new Random();
         byte[] payload = new byte[PAYLOAD_SIZE];

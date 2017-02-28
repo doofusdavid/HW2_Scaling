@@ -12,40 +12,48 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 /**
- * Created by david on 2/19/17.
+ * Class representing a Thread in the ThreadPool, responsible for communication with the Client,
+ * as well as adding and removing from the WorkQueue
  */
 public class WorkerThread extends Thread
 {
-    public static final int PAYLOAD_SIZE = 8192;
+    private static final int PAYLOAD_SIZE = 8192;
     private final WorkQueue workQueue;
     private final ThreadPool threadPool;
-    private boolean isStopped;
 
+    /**
+     * Constructor giving the Thread knowledge of the WorkQueue and the ThreadPool
+     *
+     * @param workQueue  Shared Workqueue between all WorkerThreads
+     * @param threadPool Shared ThreadPool containing other WorkerThreads
+     */
     public WorkerThread(WorkQueue workQueue, ThreadPool threadPool)
     {
         this.workQueue = workQueue;
         this.threadPool = threadPool;
-        this.isStopped = false;
     }
 
+    /**
+     * Repeat the Read/Hash/Write loop until interrupted.
+     */
     @Override
     public void run()
     {
-        while (!isStopped)
+        while (!Thread.interrupted())
         {
-
             WorkItem work = null;
             try
             {
+                // WorkQueue blocks until a WorkItem is available
                 work = workQueue.dequeue();
             }
             catch (InterruptedException e)
             {
                 e.printStackTrace();
             }
-
             try
             {
+                // Find out which type of WorkItem it is, and proceed accordingly
                 if (work instanceof ReadWorkItem)
                 {
                     this.processRead((ReadWorkItem) work);
@@ -62,12 +70,17 @@ public class WorkerThread extends Thread
             }
             catch (Exception e)
             {
-                e.printStackTrace();
+                System.out.println("Error in WorkerThread: " + e.getMessage());
             }
-
         }
     }
 
+    /**
+     * Read in from a Client
+     * @param work The WorkItem which contains the Key needed to identify the Client
+     * @throws IOException In case of error reading from client
+     * @throws InterruptedException If interrupted while Enqueuing WorkItem
+     */
     private void processRead(ReadWorkItem work) throws IOException, InterruptedException
     {
         SelectionKey workKey = work.getKey();
@@ -78,23 +91,11 @@ public class WorkerThread extends Thread
 
         // Attempt to read off the channel
         int numRead = 0;
-        try
+        while (readBuffer.hasRemaining() && numRead != -1)
         {
-            while (readBuffer.hasRemaining() && numRead != -1)
-            {
-                numRead = channel.read(readBuffer);
-            }
-            readBuffer.rewind();
+            numRead = channel.read(readBuffer);
         }
-        catch (IOException e)
-        {
-            // The remote forcibly closed the connection, cancel
-            // the selection key and close the channel.
-            work.getKey().cancel();
-            channel.close();
-            this.threadPool.decrementTotalConnectedClients();
-            return;
-        }
+        readBuffer.rewind();
 
         if (numRead == -1)
         {
@@ -104,21 +105,21 @@ public class WorkerThread extends Thread
             this.threadPool.decrementTotalConnectedClients();
             return;
         }
-        HashWorkItem hashWorkItem = new HashWorkItem(work.getKey(), readBuffer.array());
-        readBuffer.rewind();
-        try
-        {
-            this.workQueue.enqueue(hashWorkItem);
-            this.threadPool.incrementTotalConnections();
 
-            SelectionKey key = channel.register(work.getKey().selector(), SelectionKey.OP_WRITE);
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
+        HashWorkItem hashWorkItem = new HashWorkItem(work.getKey(), readBuffer.array());
+
+        // Enqueue the new WorkItem containing the byte array from the Client
+        this.workQueue.enqueue(hashWorkItem);
+        this.threadPool.incrementTotalConnections();
+
+        // register interest in Writing
+        work.getKey().interestOps(SelectionKey.OP_WRITE);
     }
 
+    /**
+     * Process a HashWorkItem, enqueueing the resulting WorkITem
+     * @param work Contains the byte array to hash
+     */
     private void processHash(HashWorkItem work)
     {
         String hashValue = ServerHashCode.SHA1FromBytes(work.getPayload());
@@ -133,6 +134,11 @@ public class WorkerThread extends Thread
         }
     }
 
+    /**
+     * Process a WriteWorkItem, sending back to the Client the generated Hash Value
+     * @param work WriteWorkItem containing the Hash Value to return
+     * @throws InterruptedException If interrupted while enqueueing the ReadWorkItem
+     */
     private void processWrite(WriteWorkItem work) throws InterruptedException
     {
         SocketChannel channel = (SocketChannel) work.getKey().channel();
@@ -154,8 +160,5 @@ public class WorkerThread extends Thread
         }
         this.workQueue.enqueue(new ReadWorkItem(work.getKey()));
         work.getKey().interestOps(SelectionKey.OP_READ);
-
-
     }
-
 }
