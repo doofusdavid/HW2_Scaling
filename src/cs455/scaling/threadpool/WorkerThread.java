@@ -71,6 +71,7 @@ public class WorkerThread extends Thread
             catch (Exception e)
             {
                 System.out.println("Error in WorkerThread: " + e.getMessage());
+                this.threadPool.decrementTotalConnectedClients();
             }
         }
     }
@@ -86,8 +87,6 @@ public class WorkerThread extends Thread
         SelectionKey workKey = work.getKey();
         SocketChannel channel = (SocketChannel) workKey.channel();
         ByteBuffer readBuffer = ByteBuffer.allocate(PAYLOAD_SIZE);
-
-        //this.threadPool.getSelector().select();
 
         // Attempt to read off the channel
         int numRead = 0;
